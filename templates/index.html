@@ -1,0 +1,193 @@
+{% extends "bootstrap/base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bangla Sentiment Classification</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://d14fo0winaifog.cloudfront.net/plotly-basic.js"></script>
+</head>
+
+{% block content %}
+<script>
+    $('#dialog-box .close').click(function() {
+      closeid = $(this).attr('id');
+      $('#dialog-box .'+closeid).fadeOut('slow');
+  });
+
+  function validateForm() {
+  let x = document.forms["myForm"]["namequery"].value;
+  let y = document.forms["myForm"]["ML"].value;
+
+  if (x == "" || y=="") {
+    alert("Filed must be filled out");
+    return false;
+  }
+}
+</script>
+
+<style>
+    .hide { display: none; }
+#jsfalse { height:50px; background-color:#952520; text-align:center; line-height:50px; color:#ffffff; font-weight:bold; font-family:Arial, Helvetica, sans-serif;  }
+
+/***Dialog Box [Start]***/
+#dialog-box .dialog {
+  border-radius: 2px;
+  color: #ffffff;
+	-webkit-border-radius: 2px;
+	-moz-border-radius: 2px;
+	font-size: 13px;
+	margin-bottom: 10px;
+	text-shadow:0px 1px 0px #505050;
+}
+#dialog-box .dialog p {
+	padding: 10px 0px 10px 40px;
+}
+#dialog-box .close {
+	background-color:transparent;
+	border:0px;
+	cursor: pointer;
+	float: right;
+	margin: 3px 3px 0px 0px;
+	position: relative;
+}
+#dialog-box .success {
+	background: #4ea255 url('../images/dialogbox/success.png') no-repeat 10px 8px;
+}
+#dialog-box .info {
+	background: #ed9517 url('../images/dialogbox/info.png') no-repeat 10px 8px;
+}
+#dialog-box .warning {
+	background: #a50e19 url('../images/dialogbox/warning.png') no-repeat 10px 8px;
+}
+/***Dialog Box [End]***/
+
+</style>
+<body>
+
+
+<!-- Navbar -->
+<div class="container">
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="/">MBSA APP</a>
+            </div>
+            <div id="navbar" class="collapse navbar-collapse">
+                <ul class="nav navbar-nav">
+                    <li><a href="{{url_for('overview')}}">Overview of Data</a></li>
+                    <li><a href="">Results</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</div>
+<!-- navbar -->
+
+
+<!-- Header -->
+<div class="container">
+    <div class = "jumbotron">
+        <h2>Multi-class Sentiment Analysis On Bengali Social Media Comments</h2>
+        <p>Using Machine Learning and Deep Learning</p>
+    <hr>
+    <br>
+    <div class="row">
+        <div class="col-lg-12 form-group-lg">
+            <form  name="myForm" action="{{url_for('predict')}}" onsubmit="return validateForm()" method="POST">
+                <input type="text" class="form-control form-control-lg" name="namequery" placeholder="{{actual}}">
+                <fieldset class="form-group">
+                    <div class="row">
+                      <legend class="col-form-label col-sm-2 pt-0">Technique</legend>
+                      <div class="col-sm-10">
+                        <div class="form-check">
+                          <input class="form-check-input" type="radio" name="ML" id="gridRadios1" value="ML" required>
+                          <label class="form-check-label" for="gridRadios1">
+                           Machine Learning
+                          </label>
+                        </div>
+                        <div class="form-check">
+                          <input class="form-check-input" type="radio" name="DL" id="gridRadios2" value="DL" disabled>
+                          <label class="form-check-label" for="gridRadios2">
+                            Deep Learning
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                  </fieldset>
+                <hr>
+                <div class="col-lg-offset-5">
+                    <button type="submit" class="btn btn-lg btn-success">Classify Message</button>
+                    <button type="reset" class="btn btn-lg btn-danger"><a href="{{url_for('index')}}"> </a> Clear</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</div>
+
+<!-- Header -->
+
+<div style="font-family:Tahoma; margin: 20px; color: black">
+    <!-- Dialog Box [Start] -->
+    <div id="dialog-box">
+        {% if prediction == 0 %}
+          <div class="dialog success">
+                <button id="success" class="close">x</button>
+                <p>The comment is : Political</p>
+            </div>
+            {% elif prediction == [1] %}
+            <div class="dialog info">
+                <button id="info" class="close">x</button>
+                <p>The comment is : Acceptable</p>
+            </div>
+            {% elif prediction == [2] %}
+            <div class="dialog info">
+                <button id="info" class="close">x</button>
+                <p>The comment is : Religeous</p>
+            </div>
+
+            {% elif prediction == [3] %}
+            <div class="dialog info">
+                <button id="info" class="close">x</button>
+                <p>The comment is : Sexual</p>
+            </div>
+        </div>
+        {% endif %}
+    <!-- Dialog Box [End] -->
+    </div>
+
+          
+<div class="container table-responsive py-5"> 
+<table class="table table-bordered table-hover">
+  <thead class="thead-dark">
+    <tr>
+      <th scope="col">Actual Text</th>
+      <th scope="col">Cleaned Text</th>
+      <th scope="col">Tokens</th>
+      <th scope="col">No. of tokens</th>
+      <th scope="col">POS tags</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>{{actual}}</td>
+      <td>{{cleanText}}</td>
+      <td>{{tokens}}</td>
+      <td>{{length}}</td>
+      <td>{{pos}}</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+{% endblock %}
+</body>
+</html>
+
+
